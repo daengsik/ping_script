@@ -20,7 +20,8 @@ while IFS=, read -r index ip_addr desc result; do
 		result="SKIP"
 	else
 		result="PASS"
-		ping -c 1 -w 100 "$ip_addr" > /dev/null
+		# 리눅스 > ping -c 1 -W 1 "$ip_addr"> /dev/null
+		ping -n 1 -w 1 "$ip_addr"> /dev/null
 		if [ $? -eq 0 ]; then
 			result="OK"
 		else
@@ -35,10 +36,27 @@ while IFS=, read -r index ip_addr desc result; do
 		echo "$index,$ip_addr,$desc,$result" >> "$temp_file"
 	fi
   	# 결과 출력
-	printf "INDEX: %-5s, IPADDR: %-15s, DESC: %-20s, RESULT: %s\n" "$index" "$ip_addr" "$desc" "$result"
-	sleep 0.5
+	if [ "$result" == "OK" ]; then
+   		 printf "INDEX: %-5s, IPADDR: %-14s, DESC: %-20s, RESULT: \033[32m%s\033[0m\n" "$index" "$ip_addr" "$desc" "$result"
+	elif [ "$result" == "FAIL" ]; then
+    		printf "INDEX: %-5s, IPADDR: %-14s, DESC: %-20s, RESULT: \033[31m%s\033[0m\n" "$index" "$ip_addr" "$desc" "$result"
+	else
+   		 printf "INDEX: %-5s, IPADDR: %-14s, DESC: %-20s, RESULT: %s\n" "$index" "$ip_addr" "$desc" "$result"
+	fi
+
 
 done < "$csv_file"
 
 # 임시 파일을 원본 파일로 이동
 mv "$temp_file" "$csv_file"
+
+while IFS=, read -r index ip_addr desc result; do
+	if [ "$result" == "OK" ]; then
+		((ok_count++))
+	elif [ "$result" == "FAIL" ]; then
+		((fail_count++))
+	fi
+done < "$csv_file"
+
+echo "OK Count: $ok_count"
+echo "FAIL Count: $fail_count"
