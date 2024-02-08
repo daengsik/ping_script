@@ -6,6 +6,17 @@ ping_node=(
 192.168.0.64
 )
 
+csv_file="testing_csv.csv"
+if [ ! -f "$csv_file" ]; then
+	echo "CSV file dosen't exist $csv_file"
+	exit 1
+fi
+
+IFS=","
+while read -r field1 field2 field3; do
+	echo "field 1: $field1, field 2: $field2, field 3: $field3"
+done < "$csv_file"
+
 for list in ${ping_node[@]}
 do
 	ping -c 1 -W 1 "$list" > /dev/null
