@@ -9,7 +9,7 @@ if [ ! -f "$csv_file" ]; then
 fi
 
 # 임시 파일 생성
-#temp_file=$(mktemp)
+temp_file=$(mktemp)
 
 # IFS(,) 지정하여 필드 분리
 IFS=","
@@ -19,21 +19,26 @@ while IFS=, read -r index ip_addr desc result; do
 	if [ "$index" == "INDEX" ]; then
 		result="SKIP"
 	else
-		ping -c 1 -w 1 "$ip_addr" > /dev/null
-	fi
-	if [ $? -eq 0 ]; then
-		result="OK"
-	else
-		result="FAIL"
+		result="PASS"
+		ping -c 1 -w 100 "$ip_addr" > /dev/null
+		if [ $? -eq 0 ]; then
+			result="OK"
+		else
+			result="FAIL"
+		fi
 	fi
 
   	# 결과를 업데이트한 행을 임시 파일에 추가
-	#echo "$index,$ip_addr,$desc,$result" >> "$temp_file"
-
+	if [ result == "SKIP" ]; then
+		true
+	else	
+		echo "$index,$ip_addr,$desc,$result" >> "$temp_file"
+	fi
   	# 결과 출력
 	printf "INDEX: %-5s, IPADDR: %-15s, DESC: %-20s, RESULT: %s\n" "$index" "$ip_addr" "$desc" "$result"
+	sleep 0.5
 
 done < "$csv_file"
 
 # 임시 파일을 원본 파일로 이동
-#mv "$temp_file" "$csv_file"
+mv "$temp_file" "$csv_file"
