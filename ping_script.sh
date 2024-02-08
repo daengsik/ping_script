@@ -19,7 +19,7 @@ while IFS=, read -r index ip_addr desc result; do
 		result="PASS"
 
 		# 리눅스
-		#ping -c 1 -W 1 "$ip_addr" > /dev/null
+		#ping -c 1 -W 0.5 "$ip_addr" > /dev/null
 		ping -n 1 -w 1 "$ip_addr" > /dev/null
 		if [ $? -eq 0 ]; then
 			result="OK"
@@ -29,7 +29,7 @@ while IFS=, read -r index ip_addr desc result; do
 	fi
 	if [ result == "SKIP" ]; then
 		true
-	else	
+	else
 		echo "$index,$ip_addr,$desc,$result" >> "$temp_file"
 	fi
 	if [ "$result" == "OK" ]; then
