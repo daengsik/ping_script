@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # CSV 파일 지정
 csv_file="testing_csv.csv"
 
@@ -16,7 +17,9 @@ while IFS=, read -r index ip_addr desc result; do
 		result="SKIP"
 	else
 		result="PASS"
-		# 리눅스 > ping -c 1 -W 1 "$ip_addr" > /dev/null
+
+		# 리눅스
+		#ping -c 1 -W 1 "$ip_addr" > /dev/null
 		ping -n 1 -w 1 "$ip_addr" > /dev/null
 		if [ $? -eq 0 ]; then
 			result="OK"
