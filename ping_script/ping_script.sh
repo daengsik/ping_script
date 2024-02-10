@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # CSV 파일 지정
-csv_file="testing_csv.csv"
+read -e -p "csv 파일지정: " csv_file
 
 if [ ! -f "$csv_file" ]; then
 	echo "CSV file doesn't exist: $csv_file"
@@ -9,19 +9,17 @@ if [ ! -f "$csv_file" ]; then
 fi
 
 temp_file=$(mktemp)
+ok_count=0
+fail_count=0
 
 IFS=","
-
 while IFS=, read -r index ip_addr desc result; do
 	if [ "$index" == "INDEX" ]; then
 		result="SKIP"
 	else
-		result="PASS"
-
 		# 리눅스
-		#ping -c 1 -W 0.5 "$ip_addr" > /dev/null
-		ping -n 1 -w 1 "$ip_addr" > /dev/null
-		if [ $? -eq 0 ]; then
+		# if ping -c 1 -W 0.5 "$ip_addr" > /dev/null; then
+		if ping -n 1 -w 1 "$ip_addr" > /dev/null; then
 			result="OK"
 		else
 			result="FAIL"
